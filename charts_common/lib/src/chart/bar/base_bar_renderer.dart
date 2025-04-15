@@ -810,38 +810,6 @@ class _ReversedSeriesIterable<S extends ImmutableSeries<Object?>>
 /// This is needed because for grouped stacked bars, the category stays in the
 /// order it was passed in for the grouping, but the series is flipped so that
 /// the first series of that category is on the top of the stack.
-// class _ReversedSeriesIterator<S extends ImmutableSeries<Object?>>
-//     extends Iterator<S> {
-//   final List<S> _list;
-//   final _visitIndex = <int>[];
-//   int? _current;
-//
-//   _ReversedSeriesIterator(List<S> list) : _list = list {
-//     // In the order of the list, save the category and the indices of the series
-//     // with the same category.
-//     final categoryAndSeriesIndexMap = <String?, List<int>>{};
-//     for (var i = 0; i < list.length; i++) {
-//       categoryAndSeriesIndexMap
-//           .putIfAbsent(list[i].seriesCategory, () => <int>[])
-//           .add(i);
-//     }
-//
-//     // Creates a visit that is categories in order, but the series is reversed.
-//     categoryAndSeriesIndexMap
-//         .forEach((_, indices) => _visitIndex.addAll(indices.reversed));
-//   }
-//
-//   @override
-//   bool moveNext() {
-//     _current = (_current == null) ? 0 : _current! + 1;
-//
-//     return _current! < _list.length;
-//   }
-//
-//   @override
-//   S get current => _list[_visitIndex[_current!]];
-// }
-
 
 class _ReversedSeriesIterator<S extends ImmutableSeries<Object?>>
     implements Iterator<S> {
