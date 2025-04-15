@@ -810,68 +810,65 @@ class _ReversedSeriesIterable<S extends ImmutableSeries<Object?>>
 /// This is needed because for grouped stacked bars, the category stays in the
 /// order it was passed in for the grouping, but the series is flipped so that
 /// the first series of that category is on the top of the stack.
+// class _ReversedSeriesIterator<S extends ImmutableSeries<Object?>>
+//     extends Iterator<S> {
+//   final List<S> _list;
+//   final _visitIndex = <int>[];
+//   int? _current;
+//
+//   _ReversedSeriesIterator(List<S> list) : _list = list {
+//     // In the order of the list, save the category and the indices of the series
+//     // with the same category.
+//     final categoryAndSeriesIndexMap = <String?, List<int>>{};
+//     for (var i = 0; i < list.length; i++) {
+//       categoryAndSeriesIndexMap
+//           .putIfAbsent(list[i].seriesCategory, () => <int>[])
+//           .add(i);
+//     }
+//
+//     // Creates a visit that is categories in order, but the series is reversed.
+//     categoryAndSeriesIndexMap
+//         .forEach((_, indices) => _visitIndex.addAll(indices.reversed));
+//   }
+//
+//   @override
+//   bool moveNext() {
+//     _current = (_current == null) ? 0 : _current! + 1;
+//
+//     return _current! < _list.length;
+//   }
+//
+//   @override
+//   S get current => _list[_visitIndex[_current!]];
+// }
+
+
 class _ReversedSeriesIterator<S extends ImmutableSeries<Object?>>
     implements Iterator<S> {
-  @override
-  S? _current;
-
-  final List<S> _items;
-  int _index = -1;
+  final List<S> _list;
+  final List<int> _visitIndex = <int>[];
+  int _currentIndex = -1;
 
   _ReversedSeriesIterator(List<S> list) : _list = list {
-      // In the order of the list, save the category and the indices of the series
-      // with the same category.
-      final categoryAndSeriesIndexMap = <String?, List<int>>{};
-      for (var i = 0; i < list.length; i++) {
-        categoryAndSeriesIndexMap
-            .putIfAbsent(list[i].seriesCategory, () => <int>[])
-            .add(i);
-      }
-
-      // Creates a visit that is categories in order, but the series is reversed.
+    // Group series indices by category
+    final categoryAndSeriesIndexMap = <String?, List<int>>{};
+    for (var i = 0; i < list.length; i++) {
       categoryAndSeriesIndexMap
-          .forEach((_, indices) => _visitIndex.addAll(indices.reversed));
+          .putIfAbsent(list[i].seriesCategory, () => <int>[])
+          .add(i);
     }
 
+    // Visit categories in order, but reverse the series within each category
+    categoryAndSeriesIndexMap
+        .forEach((_, indices) => _visitIndex.addAll(indices.reversed));
+  }
+
   @override
-  S? get current => _current;
+  S get current => _list[_visitIndex[_currentIndex]];
 
   @override
   bool moveNext() {
-    if (_index + 1 < _items.length) {
-      _index++;
-      _current = _items[_index];
-      return true;
-    }
-    _current = null;
-    return false;
+    _currentIndex++;
+    return _currentIndex < _visitIndex.length;
   }
-  // final List<S> _list;
-  // final _visitIndex = <int>[];
-  // int? _current;
-  //
-  // _ReversedSeriesIterator(List<S> list) : _list = list {
-  //   // In the order of the list, save the category and the indices of the series
-  //   // with the same category.
-  //   final categoryAndSeriesIndexMap = <String?, List<int>>{};
-  //   for (var i = 0; i < list.length; i++) {
-  //     categoryAndSeriesIndexMap
-  //         .putIfAbsent(list[i].seriesCategory, () => <int>[])
-  //         .add(i);
-  //   }
-  //
-  //   // Creates a visit that is categories in order, but the series is reversed.
-  //   categoryAndSeriesIndexMap
-  //       .forEach((_, indices) => _visitIndex.addAll(indices.reversed));
-  // }
-  //
-  // @override
-  // bool moveNext() {
-  //   _current = (_current == null) ? 0 : _current! + 1;
-  //
-  //   return _current! < _list.length;
-  // }
-  //
-  // @override
-  // S get current => _list[_visitIndex[_current!]];
 }
