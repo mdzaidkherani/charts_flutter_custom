@@ -70,7 +70,28 @@ const barElementsKey =
 ///   such that bars from the last series will be "on top" of bars from previous
 ///   series.
 abstract class BaseBarRenderer<D, R extends BaseBarRendererElement,
-    B extends BaseAnimatedBar<D, R>> extends BaseCartesianRenderer<D> {
+    B extends BaseAnimatedBar<D, R>> implements BaseCartesianRenderer<D> {
+  @override
+  S? _current;
+
+  final List<S> _items;
+  int _index = -1;
+
+  _MyBarIterator(this._items);
+
+  @override
+  S? get current => _current;
+
+  @override
+  bool moveNext() {
+    if (_index + 1 < _items.length) {
+      _index++;
+      _current = _items[_index];
+      return true;
+    }
+    _current = null;
+    return false;
+  }
   // `config` can't be a `BaseBarRendererConfig<D>` because `BarLaneRenderer<D>`
   // passes a `BarLaneRendererConfig`, but `BarLaneRendererConfig` is a
   // `BarRendererConfig<String>`.
