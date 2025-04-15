@@ -70,28 +70,7 @@ const barElementsKey =
 ///   such that bars from the last series will be "on top" of bars from previous
 ///   series.
 abstract class BaseBarRenderer<D, R extends BaseBarRendererElement,
-    B extends BaseAnimatedBar<D, R>> implements BaseCartesianRenderer<D> {
-  @override
-  S? _current;
-
-  final List<S> _items;
-  int _index = -1;
-
-  _MyBarIterator(this._items);
-
-  @override
-  S? get current => _current;
-
-  @override
-  bool moveNext() {
-    if (_index + 1 < _items.length) {
-      _index++;
-      _current = _items[_index];
-      return true;
-    }
-    _current = null;
-    return false;
-  }
+    B extends BaseAnimatedBar<D, R>> extends BaseCartesianRenderer<D> {
   // `config` can't be a `BaseBarRendererConfig<D>` because `BarLaneRenderer<D>`
   // passes a `BarLaneRendererConfig`, but `BarLaneRendererConfig` is a
   // `BarRendererConfig<String>`.
@@ -832,33 +811,67 @@ class _ReversedSeriesIterable<S extends ImmutableSeries<Object?>>
 /// order it was passed in for the grouping, but the series is flipped so that
 /// the first series of that category is on the top of the stack.
 class _ReversedSeriesIterator<S extends ImmutableSeries<Object?>>
-    extends Iterator<S> {
-  final List<S> _list;
-  final _visitIndex = <int>[];
-  int? _current;
+    implements Iterator<S> {
+  @override
+  S? _current;
+
+  final List<S> _items;
+  int _index = -1;
 
   _ReversedSeriesIterator(List<S> list) : _list = list {
-    // In the order of the list, save the category and the indices of the series
-    // with the same category.
-    final categoryAndSeriesIndexMap = <String?, List<int>>{};
-    for (var i = 0; i < list.length; i++) {
+      // In the order of the list, save the category and the indices of the series
+      // with the same category.
+      final categoryAndSeriesIndexMap = <String?, List<int>>{};
+      for (var i = 0; i < list.length; i++) {
+        categoryAndSeriesIndexMap
+            .putIfAbsent(list[i].seriesCategory, () => <int>[])
+            .add(i);
+      }
+
+      // Creates a visit that is categories in order, but the series is reversed.
       categoryAndSeriesIndexMap
-          .putIfAbsent(list[i].seriesCategory, () => <int>[])
-          .add(i);
+          .forEach((_, indices) => _visitIndex.addAll(indices.reversed));
     }
 
-    // Creates a visit that is categories in order, but the series is reversed.
-    categoryAndSeriesIndexMap
-        .forEach((_, indices) => _visitIndex.addAll(indices.reversed));
-  }
+  @override
+  S? get current => _current;
 
   @override
   bool moveNext() {
-    _current = (_current == null) ? 0 : _current! + 1;
-
-    return _current! < _list.length;
+    if (_index + 1 < _items.length) {
+      _index++;
+      _current = _items[_index];
+      return true;
+    }
+    _current = null;
+    return false;
   }
-
-  @override
-  S get current => _list[_visitIndex[_current!]];
+  // final List<S> _list;
+  // final _visitIndex = <int>[];
+  // int? _current;
+  //
+  // _ReversedSeriesIterator(List<S> list) : _list = list {
+  //   // In the order of the list, save the category and the indices of the series
+  //   // with the same category.
+  //   final categoryAndSeriesIndexMap = <String?, List<int>>{};
+  //   for (var i = 0; i < list.length; i++) {
+  //     categoryAndSeriesIndexMap
+  //         .putIfAbsent(list[i].seriesCategory, () => <int>[])
+  //         .add(i);
+  //   }
+  //
+  //   // Creates a visit that is categories in order, but the series is reversed.
+  //   categoryAndSeriesIndexMap
+  //       .forEach((_, indices) => _visitIndex.addAll(indices.reversed));
+  // }
+  //
+  // @override
+  // bool moveNext() {
+  //   _current = (_current == null) ? 0 : _current! + 1;
+  //
+  //   return _current! < _list.length;
+  // }
+  //
+  // @override
+  // S get current => _list[_visitIndex[_current!]];
 }
