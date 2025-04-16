@@ -99,7 +99,7 @@ class BaseChartState<D> extends State<BaseChart<D>>
       oldChartWidget: _oldWidget,
       chartWidget: widget,
       chartState: this,
-      // animationValue: _animationValue,
+      animationValue: _animationValue,
       // rtl: rtl,
       // rtlSpec: widget.rtlSpec,
       // userManagedState: widget.userManagedState,
