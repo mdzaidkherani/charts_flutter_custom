@@ -97,6 +97,7 @@ class BaseChartState<D> extends State<BaseChart<D>>
 
     final chartContainer = ChartContainer<D>(
       oldChartWidget: _oldWidget,
+
       chartWidget: widget,
       chartState: this,
       animationValue: _animationValue,

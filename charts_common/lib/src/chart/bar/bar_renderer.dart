@@ -474,6 +474,11 @@ class BarRenderer<D>
       measureStart =
           measureAxis.getLocation(measureValue + measureOffsetValue)!.round();
     } else {
+      print('measureValue: $measureValue');
+      print('measureOffsetValue: $measureOffsetValue');
+      print('locationStart: ${measureAxis.getLocation(measureOffsetValue)}');
+      print('locationEnd: ${measureAxis.getLocation(measureValue + measureOffsetValue)}');
+
       measureStart = measureAxis.getLocation(measureOffsetValue)!.round();
       measureEnd =
           measureAxis.getLocation(measureValue + measureOffsetValue)!.round();
